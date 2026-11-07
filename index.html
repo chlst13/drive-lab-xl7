@@ -61,7 +61,7 @@ body.pseudo-full .mobileLandscape{display:none}
 <div class="brand"><span class="kicker">PARKING SIMULATOR</span><b>DRIVE <em>LAB</em> <span style="font-size:9px;color:#85bdcd">V8</span></b></div>
 <div class="subbrand">XL7 REALISTIC EDITION · GEOMETRI NYATA · KONTROL LANDSCAPE</div>
 <div class="chip"><i></i><span id="headerLabel">MEMUAT ENGINE</span></div>
-<div class="topBtns"><button class="mini" id="camBtn">◉ Kamera</button><button class="mini" id="helpBtn">? Panduan</button><button class="mini primary" id="fullBtn">⛶ FULL</button></div>
+<div class="topBtns"><button class="mini" id="camBtn">◉ Kamera</button><button class="mini" id="viewResetBtn" title="Kembalikan seluruh peta">⊞ 100%</button><button class="mini" id="helpBtn">? Panduan</button><button class="mini primary" id="fullBtn">⛶ FULL</button></div>
 </header>
 <div id="layout">
 <aside class="panel leftPanel">
@@ -196,11 +196,18 @@ wheel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight
 function bindPedal(el,dir){el.addEventListener('pointerdown',e=>{e.preventDefault();if(e.pointerType==='mouse'&&e.button!==0)return;try{el.setPointerCapture(e.pointerId)}catch(_){/* Safari fallback */};state.pressed.set(e.pointerId,dir);reflectIntents()});const off=e=>{state.pressed.delete(e.pointerId);reflectIntents()};for(const ev of['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,off);el.addEventListener('contextmenu',e=>e.preventDefault())}
 bindPedal($('forward'),1);bindPedal($('reverse'),-1);
 function releaseAll(){releaseWheelTracking();removeHeld();reflectIntents()}
+// Prevent iOS Safari pinch/double-tap page zoom; retain independent wheel+pedal pointers.
+for(const type of ['gesturestart','gesturechange','gestureend'])document.addEventListener(type,e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+document.addEventListener('dblclick',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{if(e.changedTouches.length!==1||e.touches.length)return;const now=Date.now();if(now-lastTouchEnd<300&&e.cancelable&&!(e.target.closest('select')))e.preventDefault();lastTouchEnd=now},{passive:false});
 window.addEventListener('blur',releaseAll);document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()});window.addEventListener('pointerup',e=>{if(state.pressed.has(e.pointerId)){state.pressed.delete(e.pointerId);reflectIntents()}});window.addEventListener('pointercancel',e=>{if(state.pressed.has(e.pointerId)){state.pressed.delete(e.pointerId);reflectIntents()}});
 window.addEventListener('keydown',e=>{if(e.target.tagName==='SELECT')return;const code=e.code;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','KeyW','KeyS','KeyA','KeyD'].includes(code))e.preventDefault();if(code==='ArrowUp'||code==='KeyW')state.keys.add('up');if(code==='ArrowDown'||code==='KeyS')state.keys.add('down');if(code==='ArrowLeft'||code==='KeyA')state.keys.add('left');if(code==='ArrowRight'||code==='KeyD')state.keys.add('right');if(code==='Space')setSteer(0);if(code==='KeyR'&&!e.repeat)initialize(state.id);if(code==='KeyC'&&!e.repeat)toggleCamera();reflectIntents()});
 window.addEventListener('keyup',e=>{if(['ArrowUp','KeyW'].includes(e.code))state.keys.delete('up');if(['ArrowDown','KeyS'].includes(e.code))state.keys.delete('down');if(['ArrowLeft','KeyA'].includes(e.code))state.keys.delete('left');if(['ArrowRight','KeyD'].includes(e.code))state.keys.delete('right');reflectIntents()});
 function adjustKeySteering(dt){const l=state.keys.has('left'),r=state.keys.has('right');if(l!==r)setSteer(state.steer+(l?-1:1)*dt*400)}
 function toggleCamera(){state.camera=state.camera==='map'?'follow':'map';$('camBtn').textContent=state.camera==='map'?'◉ Kamera':'↗ Ikuti';announce(state.camera==='map'?'Kamera peta keseluruhan.':'Kamera mengikuti mobil.',2.5)}
+function resetMapView(){state.camera='map';$('camBtn').textContent='◉ Kamera';resize();draw();announce('Peta kembali ke tampilan penuh. Jika seluruh browser masih membesar, gunakan pengaturan zoom Safari.',4)}
+$('viewResetBtn').addEventListener('click',resetMapView);
 $('camBtn').addEventListener('click',toggleCamera);$('precisionBtn').addEventListener('click',()=>{state.precision=!state.precision;$('precisionBtn').textContent=state.precision?'⚙ PRESISI':'⚡ NORMAL';announce(state.precision?'Mode presisi: lebih lambat, cocok untuk parkir rapat.':'Mode normal: lebih cepat, gunakan hati-hati.',3)});
 $('pathBtn').addEventListener('click',()=>{state.path=!state.path;$('pathBtn').textContent=`⌁ Jalur: ${state.path?'ON':'OFF'}`});$('sensorBtn').addEventListener('click',()=>{state.sensors=!state.sensors;$('sensorBtn').textContent=`◉ Sensor: ${state.sensors?'ON':'OFF'}`});
 $('helpBtn').addEventListener('click',()=>{announce('SETIR: geser melingkar di kiri (720° per sisi), tekan XL7 untuk lurus. PEDAL: tahan MAJU/MUNDUR di kanan. GANTI MISI: pilih lintasan atas. SENSOR: jarak perkiraan dari bodi. Desktop: panah/WASD, Spasi luruskan, R reset.',14)});
