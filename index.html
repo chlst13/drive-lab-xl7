@@ -66,8 +66,8 @@ body.pseudo-full .mobileLandscape{display:none}
 <div id="app">
 <header>
 <div class="brandIcon">DL</div>
-<div class="brand"><span class="kicker">PARKING SIMULATOR</span><b>DRIVE <em>LAB</em> <span style="font-size:9px;color:#85bdcd">V8</span></b></div>
-<div class="subbrand">XL7 REALISTIC EDITION · GEOMETRI NYATA · KONTROL LANDSCAPE</div>
+<div class="brand"><span class="kicker">PARKING SIMULATOR</span><b>DRIVE <em>LAB</em> <span style="font-size:9px;color:#85bdcd">V10</span></b></div>
+<div class="subbrand">XL7 INDONESIA DRIVING ACADEMY · 21 SKENARIO · LANDSCAPE</div>
 <div class="chip"><i></i><span id="headerLabel">MEMUAT ENGINE</span></div>
 <div class="topBtns"><button class="mini" id="camBtn">◉ Kamera</button><button class="mini" id="viewResetBtn" title="Kembalikan seluruh peta">⊞ 100%</button><button class="mini" id="helpBtn">? Panduan</button><button class="mini primary" id="fullBtn">⛶ FULL</button></div>
 </header>
@@ -98,7 +98,7 @@ body.pseudo-full .mobileLandscape{display:none}
 <div id="statusFlag">● SIAP LATIHAN</div>
 <div class="winPopup" id="winPopup" hidden><div class="trophy">🏆</div><h2>Manuver berhasil!</h2><div class="stars" id="winStars">★★★</div><p id="winDetails">Selesai tanpa menyenggol apa pun.</p><div class="winButtons"><button id="nextMission">LEVEL BERIKUTNYA →</button><button class="secondary" id="retryMission">↺ ULANGI</button></div></div>
 <div class="overlayBottom" id="message">Ikuti penanda target hijau.</div>
-<div class="sceneTools"><button id="replayBtn" title="Putar ulang lintasan">↺ REPLAY</button><button id="pathBtn">⌁ Jalur: ON</button><button id="sensorBtn">◉ Sensor: ON</button></div>
+<div class="sceneTools"><button id="mirrorBtn" title="Spion jarak samping">◈ SPION</button><button id="replayBtn" title="Putar ulang lintasan">↺ REPLAY</button><button id="pathBtn">⌁ Jalur: ON</button><button id="sensorBtn">◉ Sensor: ON</button></div>
 </div>
 <div class="bottomBar"><div class="stat"><label>KECEPATAN</label><b id="speedValue">0,0 km/j</b></div><div class="sep"></div><div class="stat"><label>RODA DEPAN</label><b id="roadWheel">0,0°</b></div><div class="sep"></div><div class="stat"><label>BENTURAN</label><b id="hitsValue" class="good">0</b></div><div class="sep"></div><div class="stat"><label>WAKTU</label><b id="timeValue">00:00</b></div><div class="sep"></div><div class="bottomTip" id="missionTip">Ukur seluruh badan mobil, bukan hanya belakang.</div></div>
 </main>
@@ -151,7 +151,7 @@ const LEVELS=[
 {id:'buntu',title:'21 · Putar di gang buntu',tag:'GANG BUNTU',width:5.2,roadText:'Gang buntu dengan kantong putar',bounds:rect(0,0,26,16),roads:[rect(1.1,4.2,23.7,5.2),rect(18.0,1.4,5.2,11.6)],start:{x:5.0,y:6.8,a:0},goal:{x:5.0,y:6.8,a:Math.PI},obstacles:[],intro:'Gang buntu dengan kantong putar. Cari ruang untuk beberapa kali maju dan mundur.',tip:'Gunakan seluruh kantong putar, jaga sudut luar bodi, dan koreksi setir bertahap.'}
 ];
 const canvas=$('gameCanvas'),ctx=canvas.getContext('2d',{alpha:false});let dpr=1,CW=600,CH=320;
-const state={id:LEVELS[0].id,level:LEVELS[0],car:{},steer:0,speed:0,intent:0,pressed:new Map(),keys:new Set(),collisions:0,pausedImpact:0,prevImpact:0,clock:0,won:false,path:true,sensors:true,camera:'map',precision:true,coach:true,actualTire:0,replay:null,history:[],trail:[],last:performance.now(),message:'',msgUntil:0,view:{ox:0,oy:0,s:15},stats:[],lastHud:0,lastHazard:0};
+const state={id:LEVELS[0].id,level:LEVELS[0],car:{},steer:0,speed:0,intent:0,pressed:new Map(),keys:new Set(),collisions:0,pausedImpact:0,prevImpact:0,clock:0,won:false,path:true,sensors:true,camera:'map',precision:true,coach:true,mirrors:false,actualTire:0,replay:null,history:[],trail:[],last:performance.now(),message:'',msgUntil:0,view:{ox:0,oy:0,s:15},stats:[],lastHud:0,lastHazard:0};
 function forwardPoint(p,u,v){return{x:p.x+Math.cos(p.a)*u-Math.sin(p.a)*v,y:p.y+Math.sin(p.a)*u+Math.cos(p.a)*v}}
 function corners(p,rear=CAR.rear,front=CAR.front,half=CAR.half){return[forwardPoint(p,-rear,-half),forwardPoint(p,front,-half),forwardPoint(p,front,half),forwardPoint(p,-rear,half)]}
 function rectCorners(r){return[{x:r.x,y:r.y},{x:r.x+r.w,y:r.y},{x:r.x+r.w,y:r.y+r.h},{x:r.x,y:r.y+r.h}]}
@@ -249,7 +249,49 @@ function drawReplayGhost(){
  ctx.save();ctx.globalAlpha=.68;drawVehicle(frame,'#f1bd53',false);ctx.restore();
  const q=p2screen(frame);ctx.save();ctx.fillStyle='#fff1bc';ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillText('REPLAY',q.x,q.y-17);ctx.restore();
 }
-function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);state.view=computeView();drawEnvironment();drawSpace();drawGoal();drawTrail();for(const o of state.level.obstacles)drawObstacle(o);prediction();drawSensors();drawVehicle(state.car,'#248dcc',true);drawReplayGhost();drawCompass();drawRearCameraInset()}
+
+function drawSideMirrors(){
+ if(!state.mirrors)return;
+ const measures=state.stats.length?state.stats:measure(),find=key=>measures.find(o=>o.key===key)?.d??8;
+ const w=Math.min(120,Math.max(80,CW*.22)),h=Math.min(71,Math.max(52,CH*.23));
+ for(const [left,key,label] of [[true,'left','KIRI'],[false,'right','KANAN']]){
+  const x=left?10:CW-w-10,y=Math.min(145,Math.max(88,CH*.28)),d=find(key);
+  ctx.save();roundedRectPath(x,y,w,h,8);ctx.clip();
+  ctx.fillStyle='#0d2634e9';ctx.fillRect(x,y,w,h);
+  ctx.fillStyle='#243c48';ctx.fillRect(x+5,y+23,w-10,h-27);
+  ctx.strokeStyle='#a4bbc2aa';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x+w/2,y+24);ctx.lineTo(x+w/2,y+h);ctx.stroke();
+  ctx.fillStyle=d<.55?'#fa7b77':d<1?'#e5b16f':'#6de2b4';
+  ctx.fillRect(x+(left?w*.25:w*.70),y+28,d<1?w*.24:w*.10,h*.46);
+  ctx.fillStyle='#d5effc';ctx.font='900 9px system-ui';ctx.textAlign='left';ctx.fillText('SPION '+label+' • SKEMA',x+7,y+15);
+  ctx.font='bold 10px system-ui';ctx.fillText(d>=7.9?'8m+':d.toFixed(1)+'m',x+7,y+h-8);
+  ctx.restore();
+ }
+}
+function drawIndonesiaDetails(){
+ const id=state.id;
+ let title='';
+ if(id==='ruko')title='RUKO · PERTOKOAN';
+ else if(id==='minimarket')title='PARKIR MINIMARKET';
+ else if(id==='carport')title='CARPORT RUMAH';
+ else if(id==='portal')title='PORTAL KOMPLEK';
+ else if(id==='motorgang')title='GANG PERUMAHAN';
+ else if(id==='pilar'||id==='rammall')title='BASEMENT MALL';
+ else if(id==='got')title='HATI-HATI SELOKAN';
+ else if(id==='gerbang')title='GERBANG PARKIR';
+ else if(id==='trukparkir')title='TRUK PARKIR';
+ else if(id==='buntu')title='JALAN BUNTU';
+ if(!title)return;
+ let p=p2screen({x:state.level.bounds.x+state.level.bounds.w/2,y:state.level.bounds.y+.65});
+ ctx.save();ctx.fillStyle='#dce6ce';ctx.font='900 '+Math.max(10,Math.min(17,state.view.s*.7))+'px system-ui';
+ ctx.textAlign='center';ctx.fillText(title,p.x,p.y);ctx.restore();
+ if(id==='got'){
+  const from=p2screen({x:1.2,y:7.95}),to=p2screen({x:14.2,y:7.95});
+  ctx.save();ctx.strokeStyle='#4c9dbccc';ctx.lineWidth=Math.max(3,state.view.s*.25);ctx.setLineDash([7,4]);
+  ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ }
+}
+function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);state.view=computeView();drawEnvironment();drawIndonesiaDetails();drawSpace();drawGoal();drawTrail();for(const o of state.level.obstacles)drawObstacle(o);prediction();drawSensors();drawVehicle(state.car,'#248dcc',true);drawReplayGhost();drawCompass();drawRearCameraInset();drawSideMirrors()}
 function reflectIntents(){let f=false,r=false;for(const v of state.pressed.values()){if(v===1)f=true;else if(v===-1)r=true}for(const k of state.keys){if(k==='up')f=true;if(k==='down')r=true}state.intent=(f===r)?0:f?1:-1;$('forward').classList.toggle('held',f);$('reverse').classList.toggle('held',r);$('gear').textContent=state.intent>0?'D':state.intent<0?'R':'N'}
 function updateHud(force=false){if(!force&&state.clock-state.lastHud<.11)return;state.lastHud=state.clock;if(state.coach)$('coachBox').textContent=coachAdvice();const velocity=Math.abs(state.speed)*3.6;$('speedValue').textContent=`${velocity.toFixed(1).replace('.',',')} km/j`;$('roadWheel').textContent=`${(state.steer/CAR.maxWheelDeg*CAR.maxTireDeg).toFixed(1).replace('.',',')}°`;$('timeValue').textContent=[Math.floor(state.clock/60),Math.floor(state.clock%60)].map(x=>String(x).padStart(2,'0')).join(':');$('hitsValue').textContent=state.collisions;state.stats=measure();for(const [key,id]of [['front','distFront'],['rear','distBack'],['left','distLeft'],['right','distRight']]){const d=state.stats.find(x=>x.key===key)?.d??8,el=$(id);el.textContent=d>=7.95?'≥ 8 m':`${fmt(d)} m`;el.className=d<.35?'bad':d<.8?'warn':''}indicator();}
 function loop(timestamp){let dt=Math.max(0,Math.min((timestamp-state.last)/1000,.045));state.last=timestamp;state.clock+=dt;
@@ -290,7 +332,7 @@ function coachAdvice(){
  if(state.intent>0)return right?'MAJU + SETIR KANAN: depan ke kanan; roda belakang memotong tikungan.':left?'MAJU + SETIR KIRI: depan ke kiri; roda belakang memotong tikungan.':'MAJU LURUS: jaga jarak kiri dan kanan, koreksi setir kecil.';
  return 'Mobil berhenti. Lampu putih = DEPAN, merah = BELAKANG. Putar setir lalu tahan pedal.';
 }
-$('coachBtn').addEventListener('click',()=>{state.coach=!state.coach;$('coachBtn').textContent=state.coach?'◉ COACH':'○ COACH';$('coachBox').hidden=!state.coach});
+$('coachBtn').addEventListener('click',()=>{state.coach=!state.coach;$('coachBtn').textContent=state.coach?'◉ COACH':'○ COACH';$('coachBox').hidden=!state.coach});$('mirrorBtn').addEventListener('click',()=>{state.mirrors=!state.mirrors;$('mirrorBtn').textContent=state.mirrors?'◈ SPION ✓':'◈ SPION'});
 $('replayBtn').addEventListener('click',()=>{
  if(state.replay){state.replay=null;$('replayBtn').textContent='↺ REPLAY';announce('Replay dihentikan.',2);return}
  if(state.history.length<5){announce('Gerakkan mobil terlebih dahulu untuk merekam lintasan.',3);return}
