@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#09111a">
+<meta name="description" content="Drive Lab V11 — simulasi mengemudi, keluar parkir dan gang sempit Indonesia.">
+<title>Drive Lab V11 — Real-Life Indonesia Driving Simulator</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="app">
+<header class="header">
+  <div class="brand"><span class="brandmark">DL</span><div class="brandcopy"><div class="brandline">DRIVE LAB <strong>V11</strong></div><div class="branddesc">REAL-LIFE INDONESIA • XL7 DRIVING ACADEMY</div></div></div>
+  <div class="engine-chip"><i></i><span id="engineStatus">MENYIAPKAN ENGINE</span></div>
+  <div class="header-actions"><button id="homeView" class="header-button" title="Kembali ke tampilan seluruh area">⊞ PETA 100%</button><button id="fullBtn" class="header-button primary">⛶ FULLSCREEN</button></div>
+</header>
+<div class="toolbar">
+  <select id="scenarioSelect" aria-label="Pilih skenario latihan"><option>Memuat skenario...</option></select>
+  <div class="filters">
+    <button id="modeBtn" class="chip-button" title="Kecepatan presisi atau normal">◉ PRESISI</button>
+    <button id="cameraBtn" class="chip-button" title="Tukar tampilan kamera">▣ PETA</button>
+    <button id="assistBtn" class="chip-button active" title="Aktifkan panduan" aria-pressed="true">✦ PANDUAN ON</button>
+    <button id="resetBtn" class="chip-button reset">↻ RESET</button>
+  </div>
+</div>
+<main class="cockpit">
+  <section class="sidepanel wheelpanel" aria-label="Kontrol kemudi">
+    <div class="section-kicker">KEMUDI / MULTITURN</div>
+    <div class="wheel-readout"><strong id="steerDirection">LURUS</strong><span id="steerValue">0°</span></div>
+    <div class="wheel-holder">
+      <div id="steering" class="steering" role="slider" tabindex="0" aria-label="Setir virtual" aria-valuemin="-720" aria-valuemax="720" aria-valuenow="0">
+        <div id="rotor" class="rotor"><div class="wheel-bar bar1"></div><div class="wheel-bar bar2"></div><div class="wheel-bar bar3"></div><div class="wheel-indicator"></div></div>
+        <button id="centerWheel" class="wheel-center" aria-label="Luruskan setir">XL7</button>
+      </div>
+    </div>
+    <div class="wheel-sub"><span>◀ 2 PUTARAN</span><span id="steerTurns">0,00×</span><span>2 PUTARAN ▶</span></div>
+    <div class="wheel-meter"><div id="wheelProgress"></div></div>
+    <div class="side-hint">Putar melingkar dengan jari kiri. Tahan pedal kanan untuk bergerak.</div>
+  </section>
+  <section class="viewportpanel" aria-label="Peta mengemudi">
+    <div class="missionline"><div><span class="mission-type" id="categoryLabel">LATIHAN</span><strong id="missionName">Menyiapkan...</strong></div><div class="difficulty" id="difficultyLabel">●●●○○</div></div>
+    <div class="viewport">
+      <canvas id="sceneCanvas" aria-label="Peta dua dimensi kendaraan dan lingkungan"></canvas>
+      <div class="scene-badge"><span id="widthInfo">JALAN —</span><span id="viewLabel">PETA LENGKAP</span></div>
+      <div class="sense-legend"><span><i class="front-dot"></i>DEPAN = PUTIH</span><span><i class="back-dot"></i>BELAKANG = MERAH</span></div>
+      <div class="mission-message" id="coachMessage">Awasi sudut depan dan belakang mobil.</div>
+      <div class="viewport-tools"><button id="lineBtn">JALUR ✓</button><button id="cornerBtn">SUDUT ✓</button><button id="pauseBtn">⏸ JEDA</button></div>
+      <div id="completion" class="completion" hidden><div class="trophy">🏆</div><h2>Misi Berhasil</h2><div id="completionStats">Selesai</div><div class="win-actions"><button id="retryBtn">ULANGI</button><button id="nextBtn">LEVEL BERIKUTNYA →</button></div></div>
+    </div>
+    <div class="mission-caption" id="missionHint">Latihan geometri parkir dan kontrol kendaraan.</div>
+  </section>
+  <section class="sidepanel pedalpanel" aria-label="Pedal dan sensor">
+    <div class="section-kicker">PEDAL / TRANSMISI</div>
+    <div class="gearbox"><span>GIGI</span><strong id="gearReadout">N</strong><small id="movingLabel">BERHENTI</small></div>
+    <div class="pedals">
+      <button id="forward" class="pedal forward"><span class="pedal-icon">▲</span><strong>MAJU</strong><small>TEKAN & TAHAN</small></button>
+      <button id="reverse" class="pedal reverse"><span class="pedal-icon">▼</span><strong>MUNDUR</strong><small>TEKAN & TAHAN</small></button>
+    </div>
+    <div class="sensors">
+      <div class="section-kicker">SENSOR JARAK 2D</div>
+      <div class="sensor-grid">
+        <div><small>DEPAN</small><strong id="sensorF">—</strong></div><div><small>BELAKANG</small><strong id="sensorB">—</strong></div>
+        <div><small>KIRI</small><strong id="sensorL">—</strong></div><div><small>KANAN</small><strong id="sensorR">—</strong></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+ <div class="stat"><small>KECEPATAN</small><strong id="speed">0,0 km/j</strong></div>
+ <div class="stat"><small>BAN DEPAN</small><strong id="tyreAngle">0,0°</strong></div>
+ <div class="stat"><small>BENTURAN</small><strong id="collisions">0</strong></div>
+ <div class="stat"><small>WAKTU</small><strong id="timer">00:00</strong></div>
+ <div class="stat"><small>KOREKSI</small><strong id="changes">0</strong></div>
+ <div class="sim-status" id="statusText">SIMULASI 2D — LATIHAN KECEPATAN RENDAH, BUKAN PENGGANTI PRAKTIK NYATA</div>
+</footer>
+<div id="rotateNotice" class="rotate-notice"><div class="rotate-icon">▱ ↻</div><strong>Putar perangkat ke landscape</strong><p>Kontrol setir dan pedal dirancang untuk dua jari pada layar horizontal.</p></div>
+</div>
+<script src="./levels.js"></script>
+<script src="./engine.js"></script>
+</body>
+</html>
