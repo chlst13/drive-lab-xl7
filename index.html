@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#09111a">
 <meta name="description" content="Drive Lab V11 — simulasi mengemudi, keluar parkir dan gang sempit Indonesia.">
-<title>Drive Lab V11 — Real-Life Indonesia Driving Simulator</title>
-<link rel="stylesheet" href="./v11/style.css?v=11">
+<title>Drive Lab V12 — Full Road Indonesia Driving Simulator</title>
+<link rel="stylesheet" href="./v12/style.css?v=12">
 </head>
 <body>
 <div id="app">
 <header class="header">
-  <div class="brand"><span class="brandmark">DL</span><div class="brandcopy"><div class="brandline">DRIVE LAB <strong>V11</strong></div><div class="branddesc">REAL-LIFE INDONESIA • XL7 DRIVING ACADEMY</div></div></div>
+  <div class="brand"><span class="brandmark">DL</span><div class="brandcopy"><div class="brandline">DRIVE LAB <strong>V12</strong></div><div class="branddesc">REAL-LIFE INDONESIA • XL7 DRIVING ACADEMY</div></div></div>
   <div class="engine-chip"><i></i><span id="engineStatus">MENYIAPKAN ENGINE</span></div>
   <div class="header-actions"><button id="homeView" class="header-button" title="Kembali ke tampilan seluruh area">⊞ PETA 100%</button><button id="fullBtn" class="header-button primary">⛶ FULLSCREEN</button></div>
 </header>
 <div class="toolbar">
   <select id="scenarioSelect" aria-label="Pilih skenario latihan"><option>Memuat skenario...</option></select>
   <div class="filters">
+    <button id="surfaceBtn" class="chip-button active" title="Ubah permukaan bebas atau batas lintasan" aria-pressed="true">▦ AREA BEBAS</button>
     <button id="modeBtn" class="chip-button" title="Kecepatan presisi atau normal">◉ PRESISI</button>
     <button id="cameraBtn" class="chip-button" title="Tukar tampilan kamera">▣ PETA</button>
     <button id="assistBtn" class="chip-button active" title="Aktifkan panduan" aria-pressed="true">✦ PANDUAN ON</button>
@@ -42,7 +43,7 @@
     <div class="missionline"><div><span class="mission-type" id="categoryLabel">LATIHAN</span><strong id="missionName">Menyiapkan...</strong></div><div class="difficulty" id="difficultyLabel">●●●○○</div></div>
     <div class="viewport">
       <canvas id="sceneCanvas" aria-label="Peta dua dimensi kendaraan dan lingkungan"></canvas>
-      <div class="scene-badge"><span id="widthInfo">JALAN —</span><span id="viewLabel">PETA LENGKAP</span></div>
+      <div class="scene-badge"><span id="widthInfo">JALAN —</span><span id="viewLabel">PETA LENGKAP</span><span id="driveInfo">ASPAL BEBAS ✓</span></div>
       <div class="sense-legend"><span><i class="front-dot"></i>DEPAN = PUTIH</span><span><i class="back-dot"></i>BELAKANG = MERAH</span></div>
       <div class="mission-message" id="coachMessage">Awasi sudut depan dan belakang mobil.</div>
       <div class="viewport-tools"><button id="lineBtn">JALUR ✓</button><button id="cornerBtn">SUDUT ✓</button><button id="pauseBtn">⏸ JEDA</button></div>
@@ -72,11 +73,11 @@
  <div class="stat"><small>BENTURAN</small><strong id="collisions">0</strong></div>
  <div class="stat"><small>WAKTU</small><strong id="timer">00:00</strong></div>
  <div class="stat"><small>KOREKSI</small><strong id="changes">0</strong></div>
- <div class="sim-status" id="statusText">SIMULASI 2D — LATIHAN KECEPATAN RENDAH, BUKAN PENGGANTI PRAKTIK NYATA</div>
+ <div class="sim-status" id="statusText">SIMULASI 2D • AREA BEBAS = PERMUKAAN LUAS DAPAT DILEWATI • RINTANGAN TETAP SOLID</div>
 </footer>
 <div id="rotateNotice" class="rotate-notice"><div class="rotate-icon">▱ ↻</div><strong>Putar perangkat ke landscape</strong><p>Kontrol setir dan pedal dirancang untuk dua jari pada layar horizontal.</p></div>
 </div>
-<script src="./v11/levels.js?v=11"></script>
-<script src="./v11/engine.js?v=11"></script>
+<script src="./v12/levels.js?v=12"></script>
+<script src="./v12/engine.js?v=12"></script>
 </body>
 </html>
